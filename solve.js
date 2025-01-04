@@ -223,7 +223,7 @@ const piecesToPlace = Object.keys(pieces);
 const solution = solve(grid, piecesToPlace);
 
 if (solution) {
-  console.log("Solution found!\n");
+  console.log("Solution found!");
 
   // Create an empty visual grid
   const visualGrid = grid.map((row) =>
