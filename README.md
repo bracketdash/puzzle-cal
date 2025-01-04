@@ -12,3 +12,4 @@ This one:
 2. `npm install`
 3. Update `TARGET_MONTH` and `TARGET_DAY` in `solve.js`
 4. `node solve`
+5. Let it run for a bit. Some days are solved in fewer than 10 million configurations; others require 20 or more.
