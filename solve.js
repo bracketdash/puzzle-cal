@@ -4,6 +4,8 @@ import chalk from "chalk";
 const TARGET_MONTH = "JAN"; // Change this to the desired month
 const TARGET_DAY = "4"; // Change this to the desired day
 
+console.log(`\nSolving for ${TARGET_MONTH} ${TARGET_DAY}...`);
+
 // Define the grid (irregular structure)
 const grid = [
   ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", null],
@@ -15,7 +17,7 @@ const grid = [
   ["29", "30", "31", null, null, null, null],
 ];
 
-// Define the pieces and their base shapes
+// Define the pieces and their shapes
 const pieces = {
   A: [
     [0, 0],
@@ -78,13 +80,14 @@ const pieces = {
 
 // Assign unique colors for each piece
 const pieceColors = {
-  A: chalk.red,
-  B: chalk.green,
-  C: chalk.blue,
-  D: chalk.yellow,
-  E: chalk.magenta,
-  F: chalk.cyan,
-  G: chalk.white,
+  A: chalk.bgRed,
+  B: chalk.bgGreen,
+  C: chalk.bgBlue,
+  D: chalk.bgYellow,
+  E: chalk.bgMagenta,
+  F: chalk.bgCyan,
+  G: chalk.bgWhite,
+  H: chalk.bgGray,
 };
 
 // Generate all transformations (rotations and flips) for a piece
@@ -179,10 +182,10 @@ let configurationsTried = 0;
 function solve(grid, piecesLeft, solution = []) {
   configurationsTried++;
   if (configurationsTried % 100000 === 0) {
-    console.log(
-      `Tried ${(configurationsTried / 1000000).toFixed(
+    process.stdout.write(
+      `\rTried ${(configurationsTried / 1000000).toFixed(
         1
-      )} million configurations...`
+      )} million configurations.`
     );
   }
 
@@ -223,11 +226,11 @@ const piecesToPlace = Object.keys(pieces);
 const solution = solve(grid, piecesToPlace);
 
 if (solution) {
-  console.log("Solution found!");
+  console.log("\n\nSolution:\n");
 
   // Create an empty visual grid
   const visualGrid = grid.map((row) =>
-    row.map((cell) => (cell === null ? "." : cell.substring(0, 1)))
+    row.map((cell) => (cell === null ? "." : cell))
   );
 
   // Fill the visual grid with the solution
@@ -244,14 +247,16 @@ if (solution) {
       row
         .map((cell) =>
           cell === "."
-            ? cell
+            ? ""
             : pieceColors[cell]
-            ? pieceColors[cell](cell)
-            : cell
+            ? pieceColors[cell]("   ")
+            : cell.length > 1
+            ? cell
+            : ` ${cell} `
         )
-        .join(" ")
+        .join("")
     );
   });
 } else {
-  console.log("No solution found.");
+  console.log("\n\nNo solution found. Check targets?");
 }
