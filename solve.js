@@ -250,9 +250,7 @@ if (solution) {
             ? ""
             : pieceColors[cell]
             ? pieceColors[cell]("   ")
-            : cell.length > 1
-            ? cell
-            : ` ${cell} `
+            : cell.padStart(2 + cell.length / 2, " ").padEnd(3, " ")
         )
         .join("")
     );
