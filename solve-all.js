@@ -1,4 +1,5 @@
 import fs from "fs";
+import { fits, placePiece } from "./functions.js";
 import {
   grid,
   initialBitmap,
@@ -6,40 +7,13 @@ import {
   validPositions,
 } from "./data.js";
 
-function fits(grid, shape, topLeft) {
-  const [x0, y0] = topLeft;
-  for (const [dx, dy] of shape) {
-    const x = x0 + dx;
-    const y = y0 + dy;
-    if (
-      x < 0 ||
-      x >= grid.length ||
-      y < 0 ||
-      y >= (grid[x] || []).length ||
-      grid[x][y] === null
-    ) {
-      return false;
-    }
-  }
-  return true;
-}
-
-function placePiece(grid, shape, topLeft) {
-  const newGrid = grid.map((row) => [...row]);
-  const [x0, y0] = topLeft;
-  for (const [dx, dy] of shape) {
-    newGrid[x0 + dx][y0 + dy] = null;
-  }
-  return newGrid;
-}
-
 function saveToJson(data, filename) {
   const filenameWithExt = filename + ".json";
   fs.writeFileSync(filenameWithExt, JSON.stringify(data), { encoding: "utf8" });
   console.log(`Saved data to ${filenameWithExt}`);
 }
 
-function saveIfValid(grid, solution) {
+function saveIfValid(solution) {
   const rendered = grid.map((row) =>
     row.map((cell) => (cell === null ? "." : cell))
   );
@@ -91,7 +65,7 @@ const covered = [...Object.keys(pieceTransformations), "."];
 let configurationsTried = 0;
 let validSolutions = 0;
 
-function solve(grid, bitmap, piecesLeft, solution = []) {
+function solve(bitmap, piecesLeft, solution = []) {
   configurationsTried++;
   if (configurationsTried % 100000 === 0) {
     const configsTried = (configurationsTried / 1000000).toFixed(1);
@@ -103,15 +77,15 @@ function solve(grid, bitmap, piecesLeft, solution = []) {
     }
   }
   if (!piecesLeft.length) {
-    validSolutions += saveIfValid(grid, solution);
+    validSolutions += saveIfValid(solution);
     return null;
   }
   const [pieceId, ...remainingPieces] = piecesLeft;
   for (const [index, shape] of pieceTransformations[pieceId].entries()) {
     for (const [x, y] of validPositions[pieceId][index]) {
-      if (fits(grid, shape, [x, y])) {
-        const newGrid = placePiece(grid, shape, [x, y]);
-        solve(newGrid, bitmap, remainingPieces, [
+      if (fits(bitmap, shape, [x, y])) {
+        const newBitmap = placePiece(bitmap, shape, [x, y]);
+        solve(newBitmap, remainingPieces, [
           ...solution,
           { piece: pieceId, shape, position: [x, y] },
         ]);
@@ -120,4 +94,4 @@ function solve(grid, bitmap, piecesLeft, solution = []) {
   }
 }
 
-solve(grid, initialBitmap, Object.keys(pieceTransformations));
+solve(initialBitmap, Object.keys(pieceTransformations));

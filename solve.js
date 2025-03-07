@@ -1,4 +1,5 @@
 import chalk from "chalk";
+import { fits, placePiece } from "./functions.js";
 import {
   grid,
   initialBitmap,
@@ -19,7 +20,7 @@ if (args.length >= 2) {
   console.log("Defaulting to JAN 1 for this run...");
 }
 
-function findPosition(grid, target) {
+function findPosition(target) {
   for (let x = 0; x < grid.length; x++) {
     for (let y = 0; y < (grid[x] || []).length; y++) {
       if (grid[x][y] === target) return [x, y];
@@ -28,62 +29,35 @@ function findPosition(grid, target) {
   return null;
 }
 
-const targetMonthPosition = findPosition(grid, TARGET_MONTH);
-const targetDayPosition = findPosition(grid, TARGET_DAY);
+const targetMonthPosition = findPosition(TARGET_MONTH);
+const targetDayPosition = findPosition(TARGET_DAY);
 if (!targetMonthPosition || !targetDayPosition) {
   console.error("Error: Target month or day not found in the grid.");
   process.exit(1);
 }
 
-function fits(grid, bitmap, shape, topLeft) {
-  const [x0, y0] = topLeft;
-  for (const [dx, dy] of shape) {
-    const x = x0 + dx;
-    const y = y0 + dy;
-    if (
-      x < 0 ||
-      x >= grid.length ||
-      y < 0 ||
-      y >= (grid[x] || []).length ||
-      bitmap[x][y]
-    ) {
-      return false;
-    }
-  }
-  return true;
-}
-
-function placePiece(bitmap, shape, topLeft) {
-  const newBitmap = bitmap.map((row) => [...row]);
-  const [x0, y0] = topLeft;
-  for (const [dx, dy] of shape) {
-    newBitmap[x0 + dx][y0 + dy] = true;
-  }
-  return newBitmap;
-}
-
-function countPlacements(grid, bitmap, transformations) {
+function countPlacements(bitmap, transformations) {
   let count = 0;
   for (const shape of transformations) {
     for (let x = 0; x < grid.length; x++) {
       for (let y = 0; y < (grid[x] || []).length; y++) {
-        if (fits(grid, bitmap, shape, [x, y])) count++;
+        if (fits(bitmap, shape, [x, y])) count++;
       }
     }
   }
   return count;
 }
 
-function sortPiecesByConstraint(grid, bitmap, piecesLeft) {
+function sortPiecesByConstraint(bitmap, piecesLeft) {
   return [...piecesLeft].sort((a, b) => {
-    const aOptions = countPlacements(grid, bitmap, pieceTransformations[a]);
-    const bOptions = countPlacements(grid, bitmap, pieceTransformations[b]);
+    const aOptions = countPlacements(bitmap, pieceTransformations[a]);
+    const bOptions = countPlacements(bitmap, pieceTransformations[b]);
     return aOptions - bOptions;
   });
 }
 
 let configurationsTried = 0;
-function solve(grid, bitmap, piecesLeft, solution = []) {
+function solve(bitmap, piecesLeft, solution = []) {
   configurationsTried++;
 
   // Early termination check - ensure target cells are still available
@@ -101,22 +75,17 @@ function solve(grid, bitmap, piecesLeft, solution = []) {
     }
     return null;
   }
-
-  // Sort pieces by constraint for better pruning
-  const sortedPieces = sortPiecesByConstraint(grid, bitmap, piecesLeft);
+  const sortedPieces = sortPiecesByConstraint(bitmap, piecesLeft);
   const [pieceId] = sortedPieces;
   const remainingPieces = sortedPieces.filter((p) => p !== pieceId);
-
   for (const [index, shape] of pieceTransformations[pieceId].entries()) {
     for (const [x, y] of validPositions[pieceId][index]) {
-      if (fits(grid, bitmap, shape, [x, y])) {
+      if (fits(bitmap, shape, [x, y])) {
         const newBitmap = placePiece(bitmap, shape, [x, y]);
-
-        const result = solve(grid, newBitmap, remainingPieces, [
+        const result = solve(newBitmap, remainingPieces, [
           ...solution,
           { piece: pieceId, shape, position: [x, y] },
         ]);
-
         if (result) return result;
       }
     }
@@ -129,7 +98,7 @@ function solve(grid, bitmap, piecesLeft, solution = []) {
 const startTime = Date.now();
 
 // Solve for the target month and day
-const solution = solve(grid, initialBitmap, Object.keys(pieceTransformations));
+const solution = solve(initialBitmap, Object.keys(pieceTransformations));
 
 const endTime = Date.now();
 const executionTime = (endTime - startTime) / 1000;
