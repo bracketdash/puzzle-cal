@@ -8,7 +8,18 @@ export const grid = [
   ["29", "30", "31", null, null, null, null],
 ];
 
-// run transformations.js to retrieve
+// run initialBitmap.js to retrieve
+export const initialBitmap = [
+  [false, false, false, false, false, false, true],
+  [false, false, false, false, false, false, true],
+  [false, false, false, false, false, false, false],
+  [false, false, false, false, false, false, false],
+  [false, false, false, false, false, false, false],
+  [false, false, false, false, false, false, false],
+  [false, false, false, true, true, true, true],
+];
+
+// run pieceTransformations.js to retrieve
 export const pieceTransformations = {
   A: [
     [

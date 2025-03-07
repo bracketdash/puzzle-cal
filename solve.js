@@ -1,70 +1,5 @@
 import chalk from "chalk";
-import { grid, pieceTransformations, validPositions } from "./data.js";
-
-// Parse command line arguments
-const args = process.argv.slice(2);
-let TARGET_MONTH, TARGET_DAY;
-
-if (args.length >= 2) {
-  // Convert month to uppercase for case-insensitive matching
-  TARGET_MONTH = args[0].toUpperCase();
-  TARGET_DAY = args[1];
-} else {
-  // Default values if no arguments provided
-  TARGET_MONTH = "JAN";
-  TARGET_DAY = "1";
-  console.log(
-    `No arguments provided. Using defaults: ${TARGET_MONTH} ${TARGET_DAY}`
-  );
-  console.log(`Usage: node solve <month> <day>`);
-  console.log(`Example: node solve mar 2`);
-}
-
-// Assign unique colors for each piece
-const pieceColors = {
-  A: chalk.bgRed,
-  B: chalk.bgGreen,
-  C: chalk.bgBlue,
-  D: chalk.bgYellow,
-  E: chalk.bgMagenta,
-  F: chalk.bgCyan,
-  G: chalk.bgWhite,
-  H: chalk.bgGray,
-};
-
-// Find the position of the target month and day in the grid
-function findPosition(grid, target) {
-  for (let x = 0; x < grid.length; x++) {
-    for (let y = 0; y < (grid[x] || []).length; y++) {
-      if (grid[x][y] === target) return [x, y];
-    }
-  }
-  return null;
-}
-
-// Dynamically find the target positions
-const targetMonthPosition = findPosition(grid, TARGET_MONTH);
-const targetDayPosition = findPosition(grid, TARGET_DAY);
-
-if (!targetMonthPosition || !targetDayPosition) {
-  console.error("Error: Target month or day not found in the grid.");
-  process.exit(1);
-}
-
-// Convert the grid to a bitmap for faster checks
-function createBitmap(grid) {
-  const bitmap = new Array(grid.length);
-  for (let i = 0; i < grid.length; i++) {
-    bitmap[i] = new Array(grid[0].length).fill(false);
-    for (let j = 0; j < grid[i].length; j++) {
-      bitmap[i][j] = grid[i][j] === null;
-    }
-  }
-  return bitmap;
-}
-
-// Create initial bitmap
-const initialBitmap = createBitmap(grid);
+import { grid, initialBitmap, pieceTransformations, validPositions } from "./data.js";
 
 // Check if a piece fits in the grid at a specific position
 function fits(grid, bitmap, shape, topLeft) {
@@ -149,9 +84,35 @@ function sortPiecesByConstraint(grid, bitmap, piecesLeft) {
   });
 }
 
-// Backtracking solver with progress updates and optimizations
-let configurationsTried = 0;
+function findPosition(grid, target) {
+  for (let x = 0; x < grid.length; x++) {
+    for (let y = 0; y < (grid[x] || []).length; y++) {
+      if (grid[x][y] === target) return [x, y];
+    }
+  }
+  return null;
+}
 
+const args = process.argv.slice(2);
+let TARGET_MONTH, TARGET_DAY;
+if (args.length >= 2) {
+  TARGET_MONTH = args[0].toUpperCase();
+  TARGET_DAY = args[1];
+} else {
+  TARGET_MONTH = "JAN";
+  TARGET_DAY = "1";
+  console.log(`Usage: node solve <month> <day>`);
+  console.log(`Example: node solve mar 2`);
+  console.log("Defaulting to JAN 1 for this run...");
+}
+const targetMonthPosition = findPosition(grid, TARGET_MONTH);
+const targetDayPosition = findPosition(grid, TARGET_DAY);
+if (!targetMonthPosition || !targetDayPosition) {
+  console.error("Error: Target month or day not found in the grid.");
+  process.exit(1);
+}
+
+let configurationsTried = 0;
 function solve(grid, bitmap, occupiedCells, piecesLeft, solution = []) {
   configurationsTried++;
 
@@ -211,6 +172,17 @@ const solution = solve(
 
 const endTime = Date.now();
 const executionTime = (endTime - startTime) / 1000;
+
+const pieceColors = {
+  A: chalk.bgRed,
+  B: chalk.bgGreen,
+  C: chalk.bgBlue,
+  D: chalk.bgYellow,
+  E: chalk.bgMagenta,
+  F: chalk.bgCyan,
+  G: chalk.bgWhite,
+  H: chalk.bgGray,
+};
 
 if (solution) {
   console.log(

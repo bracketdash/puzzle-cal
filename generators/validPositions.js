@@ -1,18 +1,7 @@
 import fs from "fs";
-import { grid, pieceTransformations } from "./data.js";
+import { grid, initialBitmap, pieceTransformations } from "../data.js";
 
 const validPositions = {};
-
-function createBitmap(grid) {
-  const bitmap = new Array(grid.length);
-  for (let i = 0; i < grid.length; i++) {
-    bitmap[i] = new Array(grid[0].length).fill(false);
-    for (let j = 0; j < grid[i].length; j++) {
-      bitmap[i][j] = grid[i][j] === null;
-    }
-  }
-  return bitmap;
-}
 
 function fits(grid, bitmap, shape, topLeft) {
   const [x0, y0] = topLeft;
@@ -50,7 +39,7 @@ function precomputeValidPositions(grid, bitmap) {
   }
 }
 
-precomputeValidPositions(grid, createBitmap(grid));
+precomputeValidPositions(grid, initialBitmap);
 
 fs.writeFile(
   "validPositions.json",

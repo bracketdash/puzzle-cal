@@ -1,5 +1,4 @@
 import fs from "fs";
-import { pieces } from "./data.js";
 
 const pieceTransformations = {};
 
@@ -113,13 +112,13 @@ function optimizeTransformations() {
 optimizeTransformations();
 
 fs.writeFile(
-  "transformations.json",
+  "pieceTransformations.json",
   JSON.stringify(pieceTransformations, null, 2),
   (err) => {
     if (err) {
       console.error("Error writing file:", err);
       return;
     }
-    console.log("Saved transformations to transformations.json");
+    console.log("Saved transformations to pieceTransformations.json");
   }
 );
