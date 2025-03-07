@@ -22,7 +22,7 @@ function solve(bitmap, piecesLeft, solution = []) {
       `Tried ${configsTried} million configurations. ${validSolutions} valid solutions found so far.`
     );
     if (configurationsTried % 1000000 === 0) {
-      fs.writeFileSync("solutions.json", JSON.stringify(data), {
+      fs.writeFileSync("solutions.json", JSON.stringify(solutions), {
         encoding: "utf8",
       });
       console.log("Saved data to solutions.json");
