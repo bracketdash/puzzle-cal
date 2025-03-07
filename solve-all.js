@@ -1,6 +1,9 @@
 import fs from "fs";
 import { grid, pieceTransformations, validPositions, covered } from "./data.js";
 
+// TODO: pull over bitmap stuff from solve
+// TODO: pull over 
+
 function fits(grid, shape, topLeft) {
   const [x0, y0] = topLeft;
   for (const [dx, dy] of shape) {
