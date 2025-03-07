@@ -1,8 +1,5 @@
 import fs from "fs";
-import { grid, pieceTransformations, validPositions, covered } from "./data.js";
-
-// TODO: pull over bitmap stuff from solve
-// TODO: pull over 
+import { grid, pieceTransformations, validPositions } from "./data.js";
 
 function fits(grid, shape, topLeft) {
   const [x0, y0] = topLeft;
@@ -38,8 +35,11 @@ function saveToJson(data, filename) {
 }
 
 const solutions = {};
+const covered = [...Object.keys(pieceTransformations), "."];
+
 let configurationsTried = 0;
 let validSolutions = 0;
+
 function solve(grid, piecesLeft, solution = []) {
   configurationsTried++;
   if (configurationsTried % 100000 === 0) {

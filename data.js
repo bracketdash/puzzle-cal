@@ -1445,5 +1445,3 @@ export const validPositions = {
     ],
   ],
 };
-
-export const covered = [...Object.keys(pieceTransformations), "."];
