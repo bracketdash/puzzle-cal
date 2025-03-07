@@ -1,4 +1,5 @@
 import chalk from "chalk";
+import { grid, pieceTransformations } from "./data.js";
 
 // Parse command line arguments
 const args = process.argv.slice(2);
@@ -19,80 +20,6 @@ if (args.length >= 2) {
   console.log(`Example: node solve mar 2`);
 }
 
-console.log(`Solving for ${TARGET_MONTH} ${TARGET_DAY}...`);
-
-// Define the grid (irregular structure)
-const grid = [
-  ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", null],
-  ["JUL", "AUG", "SEP", "OCT", "NOV", "DEC", null],
-  ["1", "2", "3", "4", "5", "6", "7"],
-  ["8", "9", "10", "11", "12", "13", "14"],
-  ["15", "16", "17", "18", "19", "20", "21"],
-  ["22", "23", "24", "25", "26", "27", "28"],
-  ["29", "30", "31", null, null, null, null],
-];
-
-// Define the pieces and their shapes
-const pieces = {
-  A: [
-    [0, 0],
-    [0, 1],
-    [0, 2],
-    [1, 0],
-    [1, 1],
-    [1, 2],
-  ], // 2x3 rectangle
-  B: [
-    [0, 0],
-    [0, 1],
-    [0, 2],
-    [1, 0],
-    [2, 0],
-  ], // L-shape (3x3 legs)
-  C: [
-    [0, 0],
-    [0, 1],
-    [0, 2],
-    [0, 3],
-    [1, 0],
-  ], // L-shape (4x2 legs)
-  D: [
-    [0, 0],
-    [0, 1],
-    [0, 2],
-    [1, 1],
-    [2, 1],
-  ], // T-shape (3 wide/tall)
-  E: [
-    [0, 0],
-    [0, 1],
-    [0, 2],
-    [1, 2],
-    [1, 3],
-  ], // Z-like shape
-  F: [
-    [0, 0],
-    [0, 1],
-    [0, 2],
-    [0, 3],
-    [1, 1],
-  ], // Line with pop-out
-  G: [
-    [0, 0],
-    [0, 1],
-    [1, 0],
-    [1, 1],
-    [2, 0],
-  ], // 2x2 square with pop-out
-  H: [
-    [0, 0],
-    [0, 1],
-    [1, 0],
-    [2, 0],
-    [2, 1],
-  ], // C-shape
-};
-
 // Assign unique colors for each piece
 const pieceColors = {
   A: chalk.bgRed,
@@ -105,58 +32,6 @@ const pieceColors = {
   H: chalk.bgGray,
 };
 
-// Generate all transformations (rotations and flips) for a piece
-function generateTransformations(shape) {
-  const transformations = new Set();
-
-  for (const flip of [false, true]) {
-    for (let rotation = 0; rotation < 4; rotation++) {
-      const transformed = shape.map(([x, y]) => {
-        let nx = flip ? -x : x;
-        let ny = y;
-
-        if (rotation === 1) [nx, ny] = [ny, -nx];
-        if (rotation === 2) [nx, ny] = [-nx, -ny];
-        if (rotation === 3) [nx, ny] = [-ny, nx];
-
-        return [nx, ny];
-      });
-
-      const minX = Math.min(...transformed.map(([x]) => x));
-      const minY = Math.min(...transformed.map(([_, y]) => y));
-
-      const normalized = transformed.map(([x, y]) => [x - minX, y - minY]);
-      transformations.add(JSON.stringify(normalized));
-    }
-  }
-
-  return Array.from(transformations).map((t) => JSON.parse(t));
-}
-
-// Generate transformations for all pieces
-const pieceTransformations = {};
-for (const [key, shape] of Object.entries(pieces)) {
-  pieceTransformations[key] = generateTransformations(shape);
-}
-
-// Optimize transformations by removing duplicates due to symmetry
-function optimizeTransformations() {
-  for (const [pieceId, shapes] of Object.entries(pieceTransformations)) {
-    const uniqueShapes = new Map();
-    for (const shape of shapes) {
-      const key = shape
-        .map((point) => `${point[0]},${point[1]}`)
-        .sort()
-        .join("|");
-      uniqueShapes.set(key, shape);
-    }
-    pieceTransformations[pieceId] = Array.from(uniqueShapes.values());
-  }
-}
-
-// Apply transformation optimization
-optimizeTransformations();
-
 // Find the position of the target month and day in the grid
 function findPosition(grid, target) {
   for (let x = 0; x < grid.length; x++) {
@@ -164,7 +39,7 @@ function findPosition(grid, target) {
       if (grid[x][y] === target) return [x, y];
     }
   }
-  return null; // Not found
+  return null;
 }
 
 // Dynamically find the target positions
@@ -351,12 +226,11 @@ function solve(grid, bitmap, occupiedCells, piecesLeft, solution = []) {
 const startTime = Date.now();
 
 // Solve for the target month and day
-const piecesToPlace = Object.keys(pieces);
 const solution = solve(
   grid,
   initialBitmap,
   initialOccupiedCells,
-  piecesToPlace
+  Object.keys(pieceTransformations)
 );
 
 const endTime = Date.now();

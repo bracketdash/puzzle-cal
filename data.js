@@ -9,7 +9,7 @@ export const grid = [
 ];
 
 // run transformations.js to retrieve
-export const transformations = {
+export const pieceTransformations = {
   A: [
     [
       [0, 2],
@@ -352,4 +352,4 @@ export const transformations = {
   ],
 };
 
-export const covered = [...Object.keys(transformations), "."];
+export const covered = [...Object.keys(pieceTransformations), "."];

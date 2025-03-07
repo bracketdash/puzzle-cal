@@ -1,5 +1,5 @@
 import fs from "fs";
-import { grid, transformations, covered } from "./data.js";
+import { grid, pieceTransformations, covered } from "./data.js";
 
 function fits(grid, shape, topLeft) {
   const [x0, y0] = topLeft;
@@ -94,7 +94,7 @@ function solve(grid, piecesLeft, solution = []) {
     return null;
   }
   const [pieceId, ...remainingPieces] = piecesLeft;
-  for (const shape of transformations[pieceId]) {
+  for (const shape of pieceTransformations[pieceId]) {
     for (let x = 0; x < grid.length; x++) {
       for (let y = 0; y < (grid[x] || []).length; y++) {
         if (fits(grid, shape, [x, y])) {
@@ -109,4 +109,4 @@ function solve(grid, piecesLeft, solution = []) {
   }
 }
 
-solve(grid, Object.keys(transformations));
+solve(grid, Object.keys(pieceTransformations));
