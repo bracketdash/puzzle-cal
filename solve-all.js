@@ -7,58 +7,6 @@ import {
   validPositions,
 } from "./data.js";
 
-function saveToJson(data, filename) {
-  const filenameWithExt = filename + ".json";
-  fs.writeFileSync(filenameWithExt, JSON.stringify(data), { encoding: "utf8" });
-  console.log(`Saved data to ${filenameWithExt}`);
-}
-
-function saveIfValid(solution) {
-  const rendered = grid.map((row) =>
-    row.map((cell) => (cell === null ? "." : cell))
-  );
-  solution.forEach(({ piece, shape, position }) => {
-    const [x0, y0] = position;
-    shape.forEach(([dx, dy]) => {
-      rendered[x0 + dx][y0 + dy] = piece;
-    });
-  });
-  let valid = true;
-  let monthRendered = false;
-  let dayRendered = false;
-  rendered.forEach((row, rowIndex) => {
-    if (!valid) {
-      return;
-    }
-    row.forEach((cell) => {
-      if (!covered.includes(cell)) {
-        if (rowIndex < 2) {
-          if (monthRendered) {
-            valid = false;
-            return;
-          }
-          monthRendered = cell;
-        } else {
-          if (dayRendered) {
-            valid = false;
-            return;
-          }
-          dayRendered = cell;
-        }
-      }
-    });
-  });
-  if (valid) {
-    const key = monthRendered + dayRendered;
-    if (!solutions[key]) {
-      solutions[key] = [];
-    }
-    solutions[key].push(rendered);
-    return 1;
-  }
-  return 0;
-}
-
 const covered = [...Object.keys(pieceTransformations), "."];
 const solutions = {};
 
@@ -68,22 +16,60 @@ let validSolutions = 0;
 function solve(bitmap, piecesLeft, solution = []) {
   configurationsTried++;
 
-  // TODO: return here (prune branch) if all the months are already covered
-
-  // TODO: return here (prune branch) if all the days are already covered
-
   if (configurationsTried % 100000 === 0) {
     const configsTried = (configurationsTried / 1000000).toFixed(1);
     console.log(
       `Tried ${configsTried} million configurations. ${validSolutions} valid solutions found so far.`
     );
     if (configurationsTried % 1000000 === 0) {
-      saveToJson(solutions, "solutions");
+      fs.writeFileSync("solutions.json", JSON.stringify(data), {
+        encoding: "utf8",
+      });
+      console.log("Saved data to solutions.json");
     }
   }
 
+  const rendered = grid.map((row) =>
+    row.map((cell) => (cell === null ? "." : cell))
+  );
+  solution.forEach(({ piece, shape, position }) => {
+    const [x0, y0] = position;
+    shape.forEach(([dx, dy]) => {
+      rendered[x0 + dx][y0 + dy] = piece;
+    });
+  });
+
+  let monthRendered = "";
+  let monthsRendered = 0;
+  let dayRendered = "";
+  let daysRendered = 0;
+  rendered.forEach((row, rowIndex) => {
+    row.forEach((cell) => {
+      if (!covered.includes(cell)) {
+        if (rowIndex < 2) {
+          monthsRendered++;
+          monthRendered = cell;
+        } else {
+          daysRendered++;
+          dayRendered = cell;
+        }
+      }
+    });
+  });
+
+  if (!monthsRendered || !daysRendered) {
+    return null;
+  }
+
   if (!piecesLeft.length) {
-    validSolutions += saveIfValid(solution);
+    if (monthsRendered === 1 && daysRendered === 1) {
+      validSolutions++;
+      const key = monthRendered + dayRendered;
+      if (!solutions[key]) {
+        solutions[key] = [];
+      }
+      solutions[key].push(rendered);
+    }
     return null;
   }
 
