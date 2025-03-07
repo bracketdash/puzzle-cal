@@ -1,5 +1,10 @@
 import fs from "fs";
-import { grid, pieceTransformations, validPositions } from "./data.js";
+import {
+  grid,
+  initialBitmap,
+  pieceTransformations,
+  validPositions,
+} from "./data.js";
 
 function fits(grid, shape, topLeft) {
   const [x0, y0] = topLeft;
@@ -34,13 +39,59 @@ function saveToJson(data, filename) {
   console.log(`Saved data to ${filenameWithExt}`);
 }
 
+function saveIfValid(grid, solution) {
+  const rendered = grid.map((row) =>
+    row.map((cell) => (cell === null ? "." : cell))
+  );
+  solution.forEach(({ piece, shape, position }) => {
+    const [x0, y0] = position;
+    shape.forEach(([dx, dy]) => {
+      rendered[x0 + dx][y0 + dy] = piece;
+    });
+  });
+  let valid = true;
+  let monthRendered = false;
+  let dayRendered = false;
+  rendered.forEach((row, rowIndex) => {
+    if (!valid) {
+      return;
+    }
+    row.forEach((cell) => {
+      if (!covered.includes(cell)) {
+        if (rowIndex < 2) {
+          if (monthRendered) {
+            valid = false;
+            return;
+          }
+          monthRendered = cell;
+        } else {
+          if (dayRendered) {
+            valid = false;
+            return;
+          }
+          dayRendered = cell;
+        }
+      }
+    });
+  });
+  if (valid) {
+    const key = monthRendered + dayRendered;
+    if (!solutions[key]) {
+      solutions[key] = [];
+    }
+    solutions[key].push(rendered);
+    return 1;
+  }
+  return 0;
+}
+
 const solutions = {};
 const covered = [...Object.keys(pieceTransformations), "."];
 
 let configurationsTried = 0;
 let validSolutions = 0;
 
-function solve(grid, piecesLeft, solution = []) {
+function solve(grid, bitmap, piecesLeft, solution = []) {
   configurationsTried++;
   if (configurationsTried % 100000 === 0) {
     const configsTried = (configurationsTried / 1000000).toFixed(1);
@@ -52,48 +103,7 @@ function solve(grid, piecesLeft, solution = []) {
     }
   }
   if (!piecesLeft.length) {
-    const rendered = grid.map((row) =>
-      row.map((cell) => (cell === null ? "." : cell))
-    );
-    solution.forEach(({ piece, shape, position }) => {
-      const [x0, y0] = position;
-      shape.forEach(([dx, dy]) => {
-        rendered[x0 + dx][y0 + dy] = piece;
-      });
-    });
-    let valid = true;
-    let monthRendered = false;
-    let dayRendered = false;
-    rendered.forEach((row, rowIndex) => {
-      if (!valid) {
-        return;
-      }
-      row.forEach((cell) => {
-        if (!covered.includes(cell)) {
-          if (rowIndex < 2) {
-            if (monthRendered) {
-              valid = false;
-              return;
-            }
-            monthRendered = cell;
-          } else {
-            if (dayRendered) {
-              valid = false;
-              return;
-            }
-            dayRendered = cell;
-          }
-        }
-      });
-    });
-    if (valid) {
-      const key = monthRendered + dayRendered;
-      if (!solutions[key]) {
-        solutions[key] = [];
-      }
-      solutions[key].push(rendered);
-      validSolutions++;
-    }
+    validSolutions += saveIfValid(grid, solution);
     return null;
   }
   const [pieceId, ...remainingPieces] = piecesLeft;
@@ -101,7 +111,7 @@ function solve(grid, piecesLeft, solution = []) {
     for (const [x, y] of validPositions[pieceId][index]) {
       if (fits(grid, shape, [x, y])) {
         const newGrid = placePiece(grid, shape, [x, y]);
-        solve(newGrid, remainingPieces, [
+        solve(newGrid, bitmap, remainingPieces, [
           ...solution,
           { piece: pieceId, shape, position: [x, y] },
         ]);
@@ -110,4 +120,4 @@ function solve(grid, piecesLeft, solution = []) {
   }
 }
 
-solve(grid, Object.keys(pieceTransformations));
+solve(grid, initialBitmap, Object.keys(pieceTransformations));

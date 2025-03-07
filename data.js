@@ -19,16 +19,6 @@ export const initialBitmap = [
   [false, false, false, true, true, true, true],
 ];
 
-// run initialOccupiedCells.js to retrieve (reminder: convert to set)
-export const initialOccupiedCells = new Set([
-  "0,6",
-  "1,6",
-  "6,3",
-  "6,4",
-  "6,5",
-  "6,6",
-]);
-
 // run pieceTransformations.js to retrieve
 export const pieceTransformations = {
   A: [

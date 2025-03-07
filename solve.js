@@ -2,7 +2,6 @@ import chalk from "chalk";
 import {
   grid,
   initialBitmap,
-  initialOccupiedCells,
   pieceTransformations,
   validPositions,
 } from "./data.js";
@@ -63,15 +62,6 @@ function placePiece(bitmap, shape, topLeft) {
   return newBitmap;
 }
 
-function placePieceOnSet(cellsOccupied, shape, topLeft) {
-  const [x0, y0] = topLeft;
-  const newCellsOccupied = new Set(cellsOccupied);
-  for (const [dx, dy] of shape) {
-    newCellsOccupied.add(`${x0 + dx},${y0 + dy}`);
-  }
-  return newCellsOccupied;
-}
-
 function countPlacements(grid, bitmap, transformations) {
   let count = 0;
   for (const shape of transformations) {
@@ -93,7 +83,7 @@ function sortPiecesByConstraint(grid, bitmap, piecesLeft) {
 }
 
 let configurationsTried = 0;
-function solve(grid, bitmap, occupiedCells, piecesLeft, solution = []) {
+function solve(grid, bitmap, piecesLeft, solution = []) {
   configurationsTried++;
 
   // Early termination check - ensure target cells are still available
@@ -121,15 +111,11 @@ function solve(grid, bitmap, occupiedCells, piecesLeft, solution = []) {
     for (const [x, y] of validPositions[pieceId][index]) {
       if (fits(grid, bitmap, shape, [x, y])) {
         const newBitmap = placePiece(bitmap, shape, [x, y]);
-        const newOccupiedCells = placePieceOnSet(occupiedCells, shape, [x, y]);
 
-        const result = solve(
-          grid,
-          newBitmap,
-          newOccupiedCells,
-          remainingPieces,
-          [...solution, { piece: pieceId, shape, position: [x, y] }]
-        );
+        const result = solve(grid, newBitmap, remainingPieces, [
+          ...solution,
+          { piece: pieceId, shape, position: [x, y] },
+        ]);
 
         if (result) return result;
       }
@@ -143,12 +129,7 @@ function solve(grid, bitmap, occupiedCells, piecesLeft, solution = []) {
 const startTime = Date.now();
 
 // Solve for the target month and day
-const solution = solve(
-  grid,
-  initialBitmap,
-  initialOccupiedCells,
-  Object.keys(pieceTransformations)
-);
+const solution = solve(grid, initialBitmap, Object.keys(pieceTransformations));
 
 const endTime = Date.now();
 const executionTime = (endTime - startTime) / 1000;
