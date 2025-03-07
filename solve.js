@@ -1,5 +1,5 @@
 import chalk from "chalk";
-import { grid, pieceTransformations } from "./data.js";
+import { grid, pieceTransformations, validPositions } from "./data.js";
 
 // Parse command line arguments
 const args = process.argv.slice(2);
@@ -127,29 +127,6 @@ function placePieceOnSet(cellsOccupied, shape, topLeft) {
   return newCellsOccupied;
 }
 
-// Precompute valid positions for each piece transformation
-const validPositions = {};
-function precomputeValidPositions(grid, bitmap) {
-  for (const [pieceId, transformations] of Object.entries(
-    pieceTransformations
-  )) {
-    validPositions[pieceId] = [];
-    for (const [index, shape] of transformations.entries()) {
-      validPositions[pieceId][index] = [];
-      for (let x = 0; x < grid.length; x++) {
-        for (let y = 0; y < (grid[x] || []).length; y++) {
-          if (fits(grid, bitmap, shape, [x, y])) {
-            validPositions[pieceId][index].push([x, y]);
-          }
-        }
-      }
-    }
-  }
-}
-
-// Initialize valid positions
-precomputeValidPositions(grid, initialBitmap);
-
 // Count number of valid placements for a piece
 function countPlacements(grid, bitmap, transformations) {
   let count = 0;
@@ -200,7 +177,6 @@ function solve(grid, bitmap, occupiedCells, piecesLeft, solution = []) {
   const remainingPieces = sortedPieces.filter((p) => p !== pieceId);
 
   for (const [index, shape] of pieceTransformations[pieceId].entries()) {
-    // Use precomputed valid positions
     for (const [x, y] of validPositions[pieceId][index]) {
       if (fits(grid, bitmap, shape, [x, y])) {
         const newBitmap = placePiece(bitmap, shape, [x, y]);
