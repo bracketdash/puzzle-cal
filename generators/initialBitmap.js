@@ -15,7 +15,7 @@ function createBitmap(grid) {
 const initialBitmap = createBitmap(grid);
 
 fs.writeFile(
-  "initialBitmap.json",
+  "./generated/initialBitmap.json",
   JSON.stringify(initialBitmap, null, 2),
   (err) => {
     if (err) {

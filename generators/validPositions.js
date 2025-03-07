@@ -42,7 +42,7 @@ function precomputeValidPositions(grid, bitmap) {
 precomputeValidPositions(grid, initialBitmap);
 
 fs.writeFile(
-  "validPositions.json",
+  "./generated/validPositions.json",
   JSON.stringify(validPositions, null, 2),
   (err) => {
     if (err) {

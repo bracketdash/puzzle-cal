@@ -112,7 +112,7 @@ function optimizeTransformations() {
 optimizeTransformations();
 
 fs.writeFile(
-  "pieceTransformations.json",
+  "./generated/pieceTransformations.json",
   JSON.stringify(pieceTransformations, null, 2),
   (err) => {
     if (err) {
