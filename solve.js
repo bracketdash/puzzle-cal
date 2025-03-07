@@ -57,27 +57,27 @@ function sortPiecesByConstraint(bitmap, piecesLeft) {
 }
 
 let configurationsTried = 0;
+
 function solve(bitmap, piecesLeft, solution = []) {
   configurationsTried++;
 
-  // Early termination check - ensure target cells are still available
   const [monthX, monthY] = targetMonthPosition;
   const [dayX, dayY] = targetDayPosition;
-
   if (bitmap[monthX][monthY] || bitmap[dayX][dayY]) {
-    return null; // Target cells already covered, this branch won't work
+    return null;
   }
 
   if (!piecesLeft.length) {
-    // Check if target month and day are uncovered
     if (!bitmap[monthX][monthY] && !bitmap[dayX][dayY]) {
       return solution;
     }
     return null;
   }
+
   const sortedPieces = sortPiecesByConstraint(bitmap, piecesLeft);
   const [pieceId] = sortedPieces;
   const remainingPieces = sortedPieces.filter((p) => p !== pieceId);
+
   for (const [index, shape] of pieceTransformations[pieceId].entries()) {
     for (const [x, y] of validPositions[pieceId][index]) {
       if (fits(bitmap, shape, [x, y])) {
@@ -94,12 +94,8 @@ function solve(bitmap, piecesLeft, solution = []) {
   return null;
 }
 
-// Measure performance
 const startTime = Date.now();
-
-// Solve for the target month and day
 const solution = solve(initialBitmap, Object.keys(pieceTransformations));
-
 const endTime = Date.now();
 const executionTime = (endTime - startTime) / 1000;
 
@@ -120,21 +116,15 @@ if (solution) {
       2
     )} seconds after trying ${configurationsTried.toLocaleString()} configurations.\n`
   );
-
-  // Create an empty visual grid
   const visualGrid = grid.map((row) =>
     row.map((cell) => (cell === null ? "." : cell))
   );
-
-  // Fill the visual grid with the solution
   solution.forEach(({ piece, shape, position }) => {
     const [x0, y0] = position;
     shape.forEach(([dx, dy]) => {
       visualGrid[x0 + dx][y0 + dy] = piece;
     });
   });
-
-  // Print the visual grid with colors
   visualGrid.forEach((row) => {
     console.log(
       row
