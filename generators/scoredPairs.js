@@ -14,7 +14,6 @@ validDates.slice(0, -1).forEach((firstDate, firstDateIndex) => {
   const secondDate = validDates[firstDateIndex + 1];
   const dateKey = `${firstDate}-${secondDate}`;
   scoredPairs[dateKey] = [];
-  console.log(`Processing day pair: ${dateKey}`);
   solutions[firstDate].forEach((firstDateSolution, firstDateSolutionIndex) => {
     solutions[secondDate].forEach(
       (secondDateSolution, secondDateSolutionIndex) => {
@@ -32,11 +31,18 @@ validDates.slice(0, -1).forEach((firstDate, firstDateIndex) => {
       }
     );
   });
-  scoredPairs[dateKey] = scoredPairs[dateKey].sort((a, b) => a[2] - b[2]);
   if (firstDateIndex > 0) {
-    // TODO: for every pair after the first, take the top 10 that have an a that is the same as a b from the previous
+    const previousBs = new Set(
+      scoredPairs[`${validDates[firstDateIndex - 1]}-${firstDate}`].map(
+        (entry) => entry[1]
+      )
+    );
+    scoredPairs[dateKey] = scoredPairs[dateKey].filter((entry) =>
+      previousBs.has(entry[0])
+    );
   }
-  scoredPairs[dateKey] = sortedScoredPairs.slice(0, 10);
+  scoredPairs[dateKey] = scoredPairs[dateKey].sort((a, b) => a[2] - b[2]);
+  scoredPairs[dateKey] = scoredPairs[dateKey].slice(0, 10);
 });
 
 fs.writeFile(
