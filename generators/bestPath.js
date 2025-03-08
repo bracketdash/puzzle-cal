@@ -46,7 +46,7 @@ function findBestPath(path = [], score = 0, dayPairIndex = 0) {
   if (dayPairIndex >= dayPairScores.length) {
     return;
   }
-  const newScore = score + dayPairScores[dayPairIndex];
+  const newScore = score + dayPairScores[dayPairIndex][2];
   if (newScore > lowestScore) {
     return;
   }
@@ -68,9 +68,9 @@ function findBestPath(path = [], score = 0, dayPairIndex = 0) {
   }
   const nextDayPairScores = getScoredPairs(path.length + 1);
 
-  // TODO: finish adapting this to the new hotness
-  const lastB = b;
+  const lastB = dayPairScores[dayPairIndex][1];
   if (lastB < nextDayPairScores.length) {
+    // TODO: finish adapting this to the new hotness
     for (let nextB = 0; nextB < nextDayPairScores[lastB].length; nextB++) {
       findBestPath(newPath, newScore, lastB, nextB);
     }
