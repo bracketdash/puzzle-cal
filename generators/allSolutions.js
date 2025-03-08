@@ -75,7 +75,7 @@ function solve(bitmap, piecesLeft, solution = []) {
       if (!solutions[key]) {
         solutions[key] = new Set();
       }
-      solutions[key].add(rendered.flat().join(""));
+      solutions[key].add(rendered.flat().join("").replaceAll(".", ""));
       if (configurationsTried > 26780000) {
         const solutionsArrays = {};
         Object.keys(solutions).forEach((key) => {
