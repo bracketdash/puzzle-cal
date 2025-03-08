@@ -11,19 +11,32 @@ const validDates = JSON.parse(
 const scoredPairs = {};
 
 validDates.slice(0, -1).forEach((firstDate, firstDateIndex) => {
+  const secondDate = validDates[firstDateIndex + 1];
+  const dateKey = `${firstDate}-${secondDate}`;
+  scoredPairs[dateKey] = [];
+  console.log(`Processing day pair: ${dateKey}`);
   solutions[firstDate].forEach((firstDateSolution, firstDateSolutionIndex) => {
-    const secondDate = validDates[firstDateIndex + 1];
-    solutions[secondDate].forEach(
-      (secondDateSolution, secondDateSolutionIndex) => {
-        const dateKey = `${firstDate}-${secondDate}`;
-        const pairKey = `${firstDateSolutionIndex}-${secondDateSolutionIndex}`;
-        if (!scoredPairs[dateKey]) {
-          scoredPairs[dateKey] = {};
+    scoredPairs[dateKey].push([]);
+    solutions[secondDate].forEach((secondDateSolution) => {
+      let score = 0;
+      for (let i = 0; i < 43; i++) {
+        if (firstDateSolution[i] !== secondDateSolution[i]) {
+          score++;
         }
-        let score = 0;
-        // TODO: Create a difference score between `firstDateSolution` and `secondDateSolution`
-        scoredPairs[dateKey][pairKey] = score;
       }
-    );
+      scoredPairs[dateKey][firstDateSolutionIndex].push(score);
+    });
   });
 });
+
+fs.writeFile(
+  "./generated/scoredPairs.json",
+  JSON.stringify(scoredPairs, null, 2),
+  (err) => {
+    if (err) {
+      console.error("Error writing file:", err);
+      return;
+    }
+    console.log("Saved pairs to scoredPairs.json");
+  }
+);
