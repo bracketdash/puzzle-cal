@@ -13,9 +13,3 @@ This one:
 3. `node solve <month> <day>`
 
 Note: Target month should be the 3-letter abbreviation. Example: `node solve mar 2` for March 2.
-
-## WIP: Find the optimal path through the year
-
-Notes:
-- Work in progress (currently updating `generators/bestPath.js`)
-- The json produced by `generators/scoredPairs.js` is pretty big, so it's in `.gitignore`
