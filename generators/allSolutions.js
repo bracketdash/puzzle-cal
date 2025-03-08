@@ -51,7 +51,7 @@ function solve(bitmap, piecesLeft, solution = []) {
   let dayRendered = "";
   let daysRendered = 0;
   rendered.forEach((row, rowIndex) => {
-    row.forEach((cell) => {
+    row.forEach((cell, cellIndex) => {
       if (!covered.includes(cell)) {
         if (rowIndex < 2) {
           monthsRendered++;
@@ -60,6 +60,7 @@ function solve(bitmap, piecesLeft, solution = []) {
           daysRendered++;
           dayRendered = cell;
         }
+        rendered[rowIndex][cellIndex] = "O";
       }
     });
   });
@@ -74,7 +75,7 @@ function solve(bitmap, piecesLeft, solution = []) {
       if (!solutions[key]) {
         solutions[key] = new Set();
       }
-      solutions[key].add(rendered);
+      solutions[key].add(rendered.flat().join(""));
       if (configurationsTried > 26780000) {
         const solutionsArrays = {};
         Object.keys(solutions).forEach((key) => {
