@@ -10,7 +10,6 @@ const validDates = JSON.parse(
 
 const scoredPairs = {};
 
-let bestPath = [];
 let lowestScore = Infinity;
 
 function getScoredPairs(firstDateIndex) {
@@ -42,32 +41,34 @@ function getScoredPairs(firstDateIndex) {
   return scoredPairs[dateKey];
 }
 
-// TODO: adapt to use above function instead of relying on readymade scored pairs
-function findBestPath(path = [], score = 0, a = 0, b = 0) {
-  const dayPairKey = validDates[path.length];
-  const dayPairScores = scoredPairs[dayPairKey];
-  if (a >= dayPairScores.length || b >= dayPairScores[a].length) {
+function findBestPath(path = [], score = 0, dayPairIndex = 0) {
+  const dayPairScores = getScoredPairs(path.length);
+  if (dayPairIndex >= dayPairScores.length) {
     return;
   }
-  const newScore = score + dayPairScores[a][b];
+  const newScore = score + dayPairScores[dayPairIndex];
   if (newScore > lowestScore) {
     return;
   }
-  const newPath = [...path, [a, b]];
+  const newPath = [...path, dayPairIndex];
   if (newPath.length === validDates.length) {
     if (newScore < lowestScore) {
       lowestScore = newScore;
-      bestPath = JSON.parse(JSON.stringify(newPath));
-      console.log(`Found a new best path:`);
-      console.log(JSON.stringify(bestPath));
-      fs.writeFileSync("./generated/bestPath.json", JSON.stringify(bestPath), {
-        encoding: "utf8",
-      });
+      const bestPathStr = newPath.join("");
+      fs.writeFileSync(
+        "./generated/bestPath.json",
+        JSON.stringify({ bestPath: bestPathStr }),
+        {
+          encoding: "utf8",
+        }
+      );
+      console.log(`Found a new best path, saved it to generated/bestPath.json`);
     }
     return;
   }
-  const nextDayPairKey = validDates[newPath.length];
-  const nextDayPairScores = scoredPairs[nextDayPairKey];
+  const nextDayPairScores = getScoredPairs(path.length + 1);
+
+  // TODO: finish adapting this to the new hotness
   const lastB = b;
   if (lastB < nextDayPairScores.length) {
     for (let nextB = 0; nextB < nextDayPairScores[lastB].length; nextB++) {
