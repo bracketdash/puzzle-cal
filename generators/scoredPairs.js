@@ -16,22 +16,28 @@ validDates.slice(0, -1).forEach((firstDate, firstDateIndex) => {
   scoredPairs[dateKey] = [];
   console.log(`Processing day pair: ${dateKey}`);
   solutions[firstDate].forEach((firstDateSolution, firstDateSolutionIndex) => {
-    scoredPairs[dateKey].push([]);
-    solutions[secondDate].forEach((secondDateSolution) => {
-      let score = 0;
-      for (let i = 0; i < 43; i++) {
-        if (firstDateSolution[i] !== secondDateSolution[i]) {
-          score++;
+    solutions[secondDate].forEach(
+      (secondDateSolution, secondDateSolutionIndex) => {
+        let score = 0;
+        for (let i = 0; i < 43; i++) {
+          if (firstDateSolution[i] !== secondDateSolution[i]) {
+            score++;
+          }
         }
+        scoredPairs[dateKey].push([
+          firstDateSolutionIndex,
+          secondDateSolutionIndex,
+          score,
+        ]);
       }
-      scoredPairs[dateKey][firstDateSolutionIndex].push(score);
-    });
+    );
   });
+  scoredPairs[dateKey] = scoredPairs[dateKey].sort((a, b) => a[2] - b[2]);
 });
 
 fs.writeFile(
   "./generated/scoredPairs.json",
-  JSON.stringify(scoredPairs, null, 2),
+  JSON.stringify(scoredPairs),
   (err) => {
     if (err) {
       console.error("Error writing file:", err);
