@@ -18,4 +18,4 @@ Note: Target month should be the 3-letter abbreviation. Example: `node solve mar
 
 Notes:
 - Work in progress (currently updating `generators/bestPath.js`)
-- The json produced by `generators/scoredPairs.js` is about 26MB, so it's in `.gitignore`
+- The json produced by `generators/scoredPairs.js` is pretty big, so it's in `.gitignore`
