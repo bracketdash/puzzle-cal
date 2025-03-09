@@ -41,7 +41,15 @@ function getScoredPairs(firstDateIndex) {
   return scoredPairs[dateKey];
 }
 
+let runs = 0;
+
 function findBestPath(path = [], score = 0, dayPairIndex = 0) {
+  runs++;
+  if (runs % 100000000 === 0) {
+    console.log(
+      `${runs / 100000000}00 million runs (current best score: ${lowestScore})`
+    );
+  }
   const dayPairScores = getScoredPairs(path.length);
   if (dayPairIndex >= dayPairScores.length) {
     return;
@@ -50,30 +58,22 @@ function findBestPath(path = [], score = 0, dayPairIndex = 0) {
   if (newScore > lowestScore) {
     return;
   }
-  const newPath = [...path, dayPairIndex];
-  if (newPath.length === validDates.length) {
+  const newPath = [...path, dayPairScores[dayPairIndex][0]];
+  if (newPath.length === validDates.length - 1) {
     if (newScore < lowestScore) {
       lowestScore = newScore;
-      const bestPathStr = newPath.join("");
-      fs.writeFileSync(
-        "./generated/bestPath.json",
-        JSON.stringify({ bestPath: bestPathStr }),
-        {
-          encoding: "utf8",
-        }
-      );
-      console.log(`Found a new best path, saved it to generated/bestPath.json`);
+      fs.writeFileSync("./generated/bestPath.json", JSON.stringify(newPath), {
+        encoding: "utf8",
+      });
+      console.log(newPath.join(","));
     }
     return;
   }
   const nextDayPairScores = getScoredPairs(path.length + 1);
-
   const lastB = dayPairScores[dayPairIndex][1];
-  if (lastB < nextDayPairScores.length) {
-    // TODO: finish adapting this to the new hotness
-    for (let nextB = 0; nextB < nextDayPairScores[lastB].length; nextB++) {
-      findBestPath(newPath, newScore, lastB, nextB);
-    }
+  const filtered = nextDayPairScores.filter((entry) => entry[0] !== lastB);
+  for (let nextB = 0; nextB < filtered.length; nextB++) {
+    findBestPath(newPath, newScore, nextB);
   }
 }
 
