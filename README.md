@@ -1,4 +1,4 @@
-# Daily Calendar Puzzle Solver
+# Puzzle Calendar Solver
 
 This is a tailored solver for a daily puzzle calendar.
 
