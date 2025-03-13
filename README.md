@@ -4,7 +4,7 @@ This is a tailored solver for a daily puzzle calendar.
 
 ## Live UI
 
-https://bracketdash.github.io/puzzle-cal/
+https://bracketdash.github.io/puzzle-calendar/
 
 - Click on a month to change the month
 - Click on a day to change the day
