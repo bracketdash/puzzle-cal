@@ -26,13 +26,39 @@ function getToday() {
 let selectedDate = getToday();
 let selectedIndex = 0;
 
+function getShowingText(total) {
+  const monthFirstLetter = selectedDate.substring(0, 1);
+  const monthRemaining = selectedDate.substring(1, 3).toLowerCase();
+  const prettyMonth = monthFirstLetter + monthRemaining;
+  const prettyDate = prettyMonth + selectedDate.substring(3);
+  const whichOutOf = `${selectedIndex + 1} of ${total}`;
+  return `Showing #${whichOutOf} solutions for ${prettyDate}`;
+}
+
+const rowStops = [6, 12, 19, 26, 33, 40];
+
 function loadSolution() {
-  const prettyMonth =
-    selectedDate.substring(0, 1) + selectedDate.substring(1, 3).toLowerCase();
-  showing.innerHTML = `Showing #${selectedIndex + 1} of ${
-    solutions[selectedDate].length
-  } solutions for ${prettyMonth} ${selectedDate.substring(3)}`;
+  const dateSolutions = solutions[selectedDate];
+  const solution = dateSolutions[selectedIndex];
+
+  showing.innerHTML = getShowingText(dateSolutions.length);
+
   // TODO: load the solution
+  // Example (APR4): solution = "HHHOGGHFHGGGCFFOBBBCFAAADBCFAAADBCCEEDDDEEE"
+  for (let i = 0; i < 43; i++) {
+    const piece = solution[i];
+    let row = 0;
+    let col = i;
+    rowStops.some((stop) => {
+      if (i >= stop) {
+        row++;
+        col = i - stop;
+      } else {
+        return true;
+      }
+    });
+    console.log(`i: ${i}, piece: ${piece}, row: ${row}, col: ${col}`);
+  }
 }
 
 function handleClickSquare({ target }) {
