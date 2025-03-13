@@ -37,14 +37,13 @@ body {
 }
 
 .row > div {
-  /* put this back when done with app.js: border-color: #eee; */
-  border-color: #c00 #f60 #09f #090 !important;
+  border-color: #eee;
   border-style: solid;
   border-width: 2px 0 0 2px;
   color: #333;
-  cursor: pointer;
   float: left;
   font-size: 20px;
+  font-weight: bold;
   height: 48px;
   line-height: 48px;
   width: 48px;
@@ -87,28 +86,35 @@ body {
   border-bottom: 2px solid #333;
 }
 
-.row > div.covered {
-  color: #999;
-}
-
 .row > div.top {
-  border-top-color: #333;
+  border-top-color: #333 !important;
 }
 
 .row > div.right {
-  border-right-color: #333;
+  border-right-color: #333 !important;
 }
 
 .row > div.bottom {
-  border-bottom-color: #333;
+  border-bottom-color: #333 !important;
 }
 
 .row > div.left {
-  border-left-color: #333;
+  border-left-color: #333 !important;
 }
 
 .row > div:hover {
   font-weight: bold;
+}
+
+.row > div.covered {
+  background-color: #eee;
+  color: #bbb;
+  cursor: pointer;
+  font-weight: normal;
+}
+
+.row > div.covered:hover {
+  color: #777;
 }
 
 .navigation {

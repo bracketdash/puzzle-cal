@@ -30,23 +30,19 @@ function getShowingText(total) {
   const monthFirstLetter = selectedDate.substring(0, 1);
   const monthRemaining = selectedDate.substring(1, 3).toLowerCase();
   const prettyMonth = monthFirstLetter + monthRemaining;
-  const prettyDate = prettyMonth + selectedDate.substring(3);
+  const prettyDate = prettyMonth + " " + selectedDate.substring(3);
   const whichOutOf = `${selectedIndex + 1} of ${total}`;
   return `Showing #${whichOutOf} solutions for ${prettyDate}`;
 }
 
-const rowStops = [6, 12, 19, 26, 33, 40];
+const rowStops = [6, 12, 19, 26, 33, 40, 43];
 
-function loadSolution() {
+function renderSolution() {
   const dateSolutions = solutions[selectedDate];
   const solution = dateSolutions[selectedIndex];
-
   showing.innerHTML = getShowingText(dateSolutions.length);
-
-  // TODO: load the solution
-  // Example (APR4): solution = "HHHOGGHFHGGGCFFOBBBCFAAADBCFAAADBCCEEDDDEEE"
   for (let i = 0; i < 43; i++) {
-    const piece = solution[i];
+    const square = squares[i];
     let row = 0;
     let col = i;
     rowStops.some((stop) => {
@@ -57,7 +53,36 @@ function loadSolution() {
         return true;
       }
     });
-    console.log(`i: ${i}, piece: ${piece}, row: ${row}, col: ${col}`);
+    square.className = "";
+    if (solution[i] !== "O") {
+      square.classList.add("covered");
+    }
+    if (
+      row > 0 &&
+      i !== 18 &&
+      ((row !== 2 &&
+        solution[i] !== solution[i - (rowStops[row] - rowStops[row - 1])]) ||
+        (row === 2 && solution[i] !== solution[i - 6]))
+    ) {
+      square.classList.add("top");
+    }
+    if (
+      !(col === 5 || col === rowStops[row] - rowStops[row - 1] - 1) &&
+      solution[i] !== solution[i + 1]
+    ) {
+      square.classList.add("right");
+    }
+    if (
+      i < 37 &&
+      ((row > 0 &&
+        solution[i] !== solution[i + (rowStops[row] - rowStops[row - 1])]) ||
+        (i < 6 && solution[i] !== solution[i + 6]))
+    ) {
+      square.classList.add("bottom");
+    }
+    if (col > 0 && solution[i] !== solution[i - 1]) {
+      square.classList.add("left");
+    }
   }
 }
 
@@ -69,10 +94,10 @@ function handleClickSquare({ target }) {
   } else {
     newDate = newDate.substring(0, 3) + text;
   }
-  if (solutions[newDate]) {
+  if (newDate !== selectedDate && solutions[newDate]) {
     selectedDate = newDate;
     selectedIndex = 0;
-    loadSolution();
+    renderSolution();
   }
 }
 
@@ -86,7 +111,7 @@ function handleClickNav(direction) {
   } else {
     selectedIndex = newIndex;
   }
-  loadSolution();
+  renderSolution();
 }
 
 squares.forEach((square) => {
@@ -96,4 +121,4 @@ squares.forEach((square) => {
 prevButton.addEventListener("click", () => handleClickNav(-1));
 nextButton.addEventListener("click", () => handleClickNav(1));
 
-loadSolution();
+renderSolution();
