@@ -1,60 +1,73 @@
-const addButtons = document.querySelectorAll(".add-button");
+const squares = document.querySelectorAll(".row > div");
+const prevButton = document.querySelector(".prev");
+const nextButton = document.querySelector(".next");
+const showing = document.querySelector(".showing");
 
-const controlFunctions = {
-  increase: ({ target }) => {
-    const span = target.parentNode.querySelector("span");
-    const newValue = parseInt(span.innerHTML, 10) + 1;
-    if (newValue === 6) {
-      target.classList.add("hidden");
-    } else if (newValue === 2) {
-      target.parentNode.querySelector(".decrease").classList.remove("hidden");
-    }
-    if (newValue < 7) {
-      span.innerHTML = newValue;
-    }
-  },
-  decrease: ({ target }) => {
-    const span = target.parentNode.querySelector("span");
-    const newValue = parseInt(span.innerHTML, 10) - 1;
-    if (newValue === 1) {
-      target.classList.add("hidden");
-    } else if (newValue === 5) {
-      target.parentNode.querySelector(".increase").classList.remove("hidden");
-    }
-    if (newValue > 0) {
-      span.innerHTML = newValue;
-    }
-  },
-  remove: ({ target }) => {
-    target.parentNode.classList.add("removing");
-    setTimeout(() => {
-      target.parentNode.remove();
-    }, 400);
-  },
-};
+const months = [
+  "JAN",
+  "FEB",
+  "MAR",
+  "APR",
+  "MAY",
+  "JUN",
+  "JUL",
+  "AUG",
+  "SEP",
+  "OCT",
+  "NOV",
+  "DEC",
+];
 
-function registerControl(row, control) {
-  row.querySelectorAll(`.${control}`).forEach((el) => {
-    el.addEventListener("click", controlFunctions[control]);
-  });
+function getToday() {
+  const todayDate = new Date();
+  return months[todayDate.getMonth()] + todayDate.getDate();
 }
 
-function handleClickAddButton({ target }) {
-  const row = target.closest(".row");
-  const randomValue = Math.floor(Math.random() * 6) + 1;
-  row.querySelector(".dice").innerHTML += `
-    <div>
-      <span>${randomValue}</span>
-      <div class="increase${randomValue > 5 ? " hidden" : ""}">+</div>
-      <div class="remove">x</div>
-      <div class="decrease${randomValue < 2 ? " hidden" : ""}">-</div>
-    </div>
-  `;
-  registerControl(row, "increase");
-  registerControl(row, "decrease");
-  registerControl(row, "remove");
+let selectedDate = getToday();
+let selectedIndex = 0;
+
+function loadSolution() {
+  const prettyMonth =
+    selectedDate.substring(0, 1) + selectedDate.substring(1, 3).toLowerCase();
+  showing.innerHTML = `Showing #${selectedIndex + 1} of ${
+    solutions[selectedDate].length
+  } solutions for ${prettyMonth} ${selectedDate.substring(3)}`;
+  // TODO: load the solution
 }
 
-addButtons.forEach((addButton) => {
-  addButton.addEventListener("click", handleClickAddButton);
+function handleClickSquare({ target }) {
+  const text = target.innerHTML;
+  let newDate = selectedDate;
+  if (months.includes(text)) {
+    newDate = text + newDate.substring(3);
+  } else {
+    newDate = newDate.substring(0, 3) + text;
+  }
+  if (solutions[newDate]) {
+    selectedDate = newDate;
+    selectedIndex = 0;
+    loadSolution();
+  }
+}
+
+function handleClickNav(direction) {
+  const newIndex = selectedIndex + direction;
+  const max = solutions[selectedDate].length - 1;
+  if (newIndex > max) {
+    selectedIndex = 0;
+  } else if (newIndex < 0) {
+    selectedIndex = max;
+  } else {
+    selectedIndex = newIndex;
+  }
+  loadSolution();
+}
+
+squares.forEach((square) => {
+  square.addEventListener("click", handleClickSquare);
 });
+
+prevButton.addEventListener("click", () => handleClickNav(-1));
+nextButton.addEventListener("click", () => handleClickNav(1));
+
+loadSolution();

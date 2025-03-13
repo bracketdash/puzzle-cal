@@ -37,7 +37,8 @@ body {
 }
 
 .row > div {
-  border-color: #fff;
+  /* put this back when done with app.js: border-color: #eee; */
+  border-color: #c00 #f60 #09f #090 !important;
   border-style: solid;
   border-width: 2px 0 0 2px;
   color: #333;
@@ -78,7 +79,7 @@ body {
 .row:nth-child(6) > div:first-child,
 .row:nth-child(6) > div:nth-child(2),
 .row:nth-child(6) > div:nth-child(3) {
-  border-bottom-color: #fff;
+  border-bottom-color: #eee;
 }
 
 .row:last-child > div {
@@ -108,4 +109,44 @@ body {
 
 .row > div:hover {
   font-weight: bold;
+}
+
+.navigation {
+  align-items: center;
+  clear: left;
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+  padding-top: 20px;
+  user-select: none;
+}
+
+.navigation .prev,
+.navigation .next {
+  background-color: #369;
+  border: 1px solid #0005;
+  border-radius: 3px;
+  color: #fff;
+  cursor: pointer;
+  height: 28px;
+  line-height: 28px;
+  padding: 0 20px;
+}
+
+.navigation .prev:hover,
+.navigation .next:hover {
+  background-color: #47a;
+}
+
+.navigation .prev:active,
+.navigation .next:active {
+  background-color: #258;
+}
+
+.navigation .showing {
+  color: #555;
+  font-size: 14px;
+  line-height: 14px;
+  max-width: 150px;
+  text-align: center;
 }
